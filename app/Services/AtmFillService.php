@@ -8,12 +8,10 @@ use App\Enums\Bills;
 use App\Enums\Errors;
 use App\Models\Atm;
 use App\Models\Withdraw;
-use App\Repositories\Interfaces\AtmRepositoryInterface;
 
 class AtmFillService
 {
     public function __construct(
-        protected AtmRepositoryInterface $repository,
         protected AtmFillConverter $converter
     ) {
     }
@@ -23,21 +21,18 @@ class AtmFillService
         $errors = [];
         $atmReturn = null;
 
-        $atmCached = $this->repository->get();
+        $atmCached = Atm::get();
 
         if (isset($atmCached) && $atmCached->available) {
             array_push($errors, Errors::ATM_AVAILABLE);
             $atmReturn = $atmCached;
         } else {
-            $atmReturn = $this->repository->save($atmRequest);
+            $atmReturn = Atm::save($atmRequest);
         }
 
         return $this->converter->atmModelToAtmOutputDTO($atmReturn, $errors);
     }
 
-    /**
-     * Calculates how many notes will be withdrawn
-     */
     public function updateByWithdraw(Atm $atmCached, Withdraw $withdraw): AtmOutputDTO
     {
         $totalBillsOfHundred = 0;
@@ -63,7 +58,7 @@ class AtmFillService
         $atmCached->billsOfTwenty = $atmCached->billsOfTwenty - $totalBillsOfTwenty;
         $atmCached->billsOfTen = $atmCached->billsOfTen - $totalBillsOfTen;
 
-        return $this->converter->atmModelToAtmOutputDTO($this->repository->save($atmCached));
+        return $this->converter->atmModelToAtmOutputDTO(Atm::save($atmCached));
     }
 
     private function calculateBills(int $withdrawCache, int $atmCachedBills, int $billValue): int

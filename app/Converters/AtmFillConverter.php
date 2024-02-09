@@ -10,9 +10,6 @@ use App\Models\Atm;
 
 class AtmFillConverter
 {
-    /**
-     * The Portuguese language was used to adopt the proposed response
-     */
     public function requestToAtmModel(CreateAtmFillRequest $request): Atm
     {
         return new Atm(

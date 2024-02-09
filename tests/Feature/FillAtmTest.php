@@ -30,9 +30,6 @@ class FillAtmTest extends TestCase
         $this->initFillAtmOutputAtributte();
     }
 
-    /**
-     * Test when try fill available atm.
-     */
     public function test_error_available_atm(): void
     {
         $this->post(self::FILL_ATM_PATH, $this->fillAtmInput);
@@ -47,9 +44,6 @@ class FillAtmTest extends TestCase
         );
     }
 
-    /**
-     * Test success fill atm.
-     */
     public function test_success_fill_atm(): void
     {
         $response = $this->post(self::FILL_ATM_PATH, $this->fillAtmInput);

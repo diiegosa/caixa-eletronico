@@ -40,9 +40,6 @@ class WithdrawTest extends TestCase
         $this->initFillAtmOutputAtributte();
     }
 
-    /**
-     * Test when try withdraw, but atm not exists.
-     */
     public function test_error_atm_not_exists(): void
     {
         $response = $this->post(self::WITHDRAW_PATH, $this->withdrawInput);
@@ -55,9 +52,6 @@ class WithdrawTest extends TestCase
         );
     }
 
-    /**
-     * Test when try withdraw, but atm is unavailable.
-     */
     public function test_error_unavailable_atm(): void
     {
         $this->post(self::FILL_ATM_PATH, $this->fillAtmInput);
@@ -72,9 +66,6 @@ class WithdrawTest extends TestCase
         );
     }
 
-    /**
-     * Test when try withdraw, but cache is unavailable.
-     */
     public function test_error_unavailable_cache(): void
     {
         $fillAtmInput = $this->fillAtmInput;
@@ -94,9 +85,6 @@ class WithdrawTest extends TestCase
         );
     }
 
-    /**
-     * Test when try withdraw, but cache is duplicated.
-     */
     public function test_error_duplicated_withdraw(): void
     {
         $fillAtmInput = $this->fillAtmInput;
@@ -122,9 +110,6 @@ class WithdrawTest extends TestCase
         );
     }
 
-    /**
-     * Test when try withdraw, but cache is duplicated.
-     */
     public function test_success_withdraw(): void
     {
         $fillAtmInput = $this->fillAtmInput;

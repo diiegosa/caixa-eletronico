@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use App\Converters\AtmFillConverter;
 use App\Enums\Errors;
 use App\Models\Atm;
-use App\Repositories\Interfaces\AtmRepositoryInterface;
 use App\Services\AtmFillService;
 use Tests\TestCase;
 
@@ -13,7 +12,6 @@ class FillAtmUnitTest extends TestCase
 {
     private AtmFillService $service;
     private AtmFillConverter $converter;
-    private AtmRepositoryInterface $repository;
     private Atm $atm;
 
     public function setUp(): void
@@ -24,7 +22,6 @@ class FillAtmUnitTest extends TestCase
 
         $this->service = app(AtmFillService::class);
         $this->converter = app(AtmFillConverter::class);
-        $this->repository = app(AtmRepositoryInterface::class);
     }
 
     public function test_error_available_atm(): void
@@ -36,7 +33,7 @@ class FillAtmUnitTest extends TestCase
 
         $this->assertEquals($returnService, $returnExpect);
 
-        $this->assertEquals($this->repository->get(), $this->atm);
+        $this->assertEquals(ATM::get(), $this->atm);
     }
 
     public function test_success_fill_atm(): void
@@ -46,7 +43,7 @@ class FillAtmUnitTest extends TestCase
 
         $this->assertEquals($returnService, $returnExpect);
 
-        $this->assertEquals($this->repository->get(), $this->atm);
+        $this->assertEquals(ATM::get(), $this->atm);
     }
 
     private function initAtm()

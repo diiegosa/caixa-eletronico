@@ -6,7 +6,6 @@ use App\Converters\AtmFillConverter;
 use App\Enums\Errors;
 use App\Models\Atm;
 use App\Models\Withdraw;
-use App\Repositories\Interfaces\AtmRepositoryInterface;
 use App\Services\WithdrawService;
 use Tests\TestCase;
 
@@ -14,7 +13,6 @@ class WithdrawUnitTest extends TestCase
 {
     private WithdrawService $service;
     private AtmFillConverter $atmFillconverter;
-    private AtmRepositoryInterface $atmRepository;
 
     private Atm $atm;
     private Withdraw $withdraw;
@@ -28,7 +26,6 @@ class WithdrawUnitTest extends TestCase
 
         $this->service = app(WithdrawService::class);
         $this->atmFillconverter = app(AtmFillConverter::class);
-        $this->atmRepository = app(AtmRepositoryInterface::class);
     }
 
 
@@ -36,7 +33,7 @@ class WithdrawUnitTest extends TestCase
     {
         $returnService = $this->service->store($this->withdraw);
 
-        $atmCached = $this->atmRepository->get();
+        $atmCached = ATM::get();
         $returnExpect = $this->atmFillconverter->atmModelToAtmOutputDTO($atmCached, [Errors::ATM_NOT_EXISTS]);
 
         $this->assertEquals($returnService, $returnExpect);
@@ -46,7 +43,7 @@ class WithdrawUnitTest extends TestCase
     {
         $atm = $this->atm;
         $atm->available = false;
-        $atmCached = $this->atmRepository->save($atm);
+        $atmCached = ATM::save($atm);
 
         $returnService = $this->service->store($this->withdraw);
 
@@ -59,7 +56,7 @@ class WithdrawUnitTest extends TestCase
 
     public function test_error_unavailable_cache(): void
     {
-        $this->atmRepository->save($this->atm);
+        ATM::save($this->atm);
 
         $withdraw = $this->withdraw;
         $withdraw->cache = 2000;
@@ -72,7 +69,7 @@ class WithdrawUnitTest extends TestCase
 
     public function test_error_duplicated_withdraw(): void
     {
-        $this->atmRepository->save($this->atm);
+        ATM::save($this->atm);
 
         $this->service->store($this->withdraw);
         $returnService = $this->service->store($this->withdraw);
@@ -84,11 +81,11 @@ class WithdrawUnitTest extends TestCase
 
     public function test_success_withdraw(): void
     {
-        $this->atmRepository->save($this->atm);
+        ATM::save($this->atm);
 
         $returnService = $this->service->store($this->withdraw);
 
-        $atmCached = $this->atmRepository->get();
+        $atmCached = ATM::get();
 
         $returnExpect = $this->atmFillconverter->atmModelToAtmOutputDTO($atmCached, []);
 

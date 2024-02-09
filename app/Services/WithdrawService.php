@@ -9,15 +9,11 @@ use App\Enums\Bills;
 use App\Enums\Errors;
 use App\Models\Atm;
 use App\Models\Withdraw;
-use App\Repositories\Interfaces\AtmRepositoryInterface;
-use App\Repositories\Interfaces\WithdrawRepositoryInterface;
 use App\Util\DateUtil;
 
 class WithdrawService
 {
     public function __construct(
-        protected WithdrawRepositoryInterface $repository,
-        protected AtmRepositoryInterface $atmRepository,
         protected WithdrawConverter $converter,
         protected AtmFillConverter $atmFillconverter,
         protected AtmFillService $atmFillService
@@ -26,7 +22,7 @@ class WithdrawService
 
     public function store(Withdraw $withdraw): AtmOutputDTO
     {
-        $atmCached = $this->atmRepository->get();
+        $atmCached = Atm::get();
 
         $errors = $this->validation($atmCached, $withdraw);
 
@@ -36,7 +32,7 @@ class WithdrawService
 
         $atmOutputDTO = $this->atmFillService->updateByWithdraw($atmCached, $withdraw);
 
-        $this->repository->save($withdraw);
+        Withdraw::save($withdraw);
 
         return $atmOutputDTO;
     }
@@ -71,19 +67,12 @@ class WithdrawService
             ($atm->billsOfHundred * Bills::HUNDRED->value) < $withdraw->cache;
     }
 
-    /**
-     * This method get all withdrawals and checks duplicity,
-     * starting from the last one element.
-     * If the time is greater than or equal to 10 minutes,
-     * the for is breaked
-     */
     private function withdrawDuplicated(Withdraw $withdrawInput): bool
     {
-        $withdrawDuplicated = false;
         $minutesValidateToWithdrawDuplicated = 10;
         $withdrawInputDatetime = DateUtil::convertStringToCarbonDatetime($withdrawInput->datetime);
 
-        $withdrawCachedList = $this->repository->getAll();
+        $withdrawCachedList = Withdraw::getAll();
 
 
         for ($i = count($withdrawCachedList) - 1; $i >= 0; $i--) {
@@ -91,15 +80,12 @@ class WithdrawService
 
             if (
                 $withdrawInputDatetime->diffInMinutes($withdrawCachedDatetime) < $minutesValidateToWithdrawDuplicated
+                && $withdrawCachedList[$i]->cache == $withdrawInput->cache
             ) {
-                if ($withdrawCachedList[$i]->cache == $withdrawInput->cache) {
-                    $withdrawDuplicated = true;
-                }
-            } else {
-                break;
+                return true;
             }
         }
 
-        return $withdrawDuplicated;
+        return false;
     }
 }
